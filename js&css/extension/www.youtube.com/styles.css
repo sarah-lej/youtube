@@ -250,6 +250,41 @@ body.no-scroll .it-player-button--tooltip {
 	padding: 8px 9px !important;
 	transform: translate(0, -75%) !important;
 }
+/*------------------------------------------------------------------------------
+4.7 POPUP PLAYER
+------------------------------------------------------------------------------*/
+
+/* Hide YouTube's page elements in popup mode */
+html.it-popup-mode ytd-masthead,
+html.it-popup-mode #secondary,
+html.it-popup-mode #below {
+	display: none !important;
+}
+
+/* Make the video player fill the popup window */
+html.it-popup-mode #movie_player {
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	max-width: none !important;
+	max-height: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+	z-index: 9999 !important;
+}
+
+/* Hide the YouTube page while the popup player loads */
+html.it-popup-mode body {
+	visibility: hidden !important;
+}
+
+/* Keep the popup player visible */
+html.it-popup-mode #movie_player {
+	visibility: visible !important;
+}
 
 /*------------------------------------------------------------------------------
 5.0 PLAYLIST

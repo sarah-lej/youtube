@@ -180,6 +180,13 @@ document.addEventListener('it-message-from-youtube', function () {
 			chrome.runtime.sendMessage({
 				name: 'only-one-player'
 			});
+		} else if (message.action === 'openPlayerPopup') {
+			chrome.runtime.sendMessage({
+				action: 'openPlayerPopup',
+				url: message.url,
+				width: message.width,
+				height: message.height
+			});
 		} else if (message.action === 'fixPopup') {
 			chrome.runtime.sendMessage({
 				action: 'fixPopup',

@@ -151,19 +151,19 @@ PERMANENT PLAYBACK SPEED
 ImprovedTube.playerPlaybackSpeed = function () { if (this.storage.player_forced_playback_speed === true) {
 	var player = this.elements.player; if (!player) return;
 	var video = this.elements.video || player.querySelector('video');
-	
+
 	// Check for channel-specific playback speed
 	var channelNameEl = document.querySelector('.ytd-channel-name a') || document.querySelector('#upload-info .ytd-channel-name');
 	var channelName = channelNameEl ? channelNameEl.textContent.trim() : '';
 	var channelSpeeds = this.storage.channel_playback_speeds || {};
-	
+
 	// Use channel-specific speed if available, otherwise use global speed
 	if (channelName && channelSpeeds[channelName] && typeof channelSpeeds[channelName] === 'number') {
 		option = channelSpeeds[channelName];
 	} else {
 		option = this.storage.player_playback_speed;
 	}
-	
+
 	if (this.isset(option) === false) { option = 1; }
 	else if ( option !== 1 ) {
 		const speed = video?.playbackRate ? Number(video.playbackRate.toFixed(2)) : (player?.getPlaybackRate ? Number(player.getPlaybackRate().toFixed(2)) : null);
@@ -1676,30 +1676,29 @@ ImprovedTube.playerPopupButton = function () {
 			opacity: 0.8,
 			onclick: function () {
 				"use strict";
+
 				const ytPlayer = ImprovedTube.elements.player;
 				ytPlayer.pauseVideo();
-				const videoID = location.search.match(ImprovedTube.regex.video_id)[1],
-					listMatch = location.search.match(ImprovedTube.regex.playlist_id),
-					popup = window.open(
-						`${location.protocol}//www.youtube.com/embed/${videoID}?start=${parseInt(ytPlayer.getCurrentTime())}&autoplay=${ImprovedTube.storage.player_autoplay_disable ? '0' : '1'}${listMatch?`&list=${listMatch[1]}`:''}`,
-						'_blank',
-						`directories=no,toolbar=no,location=no,menubar=no,status=no,titlebar=no,scrollbars=no,resizable=no,width=${ytPlayer.offsetWidth / 3},height=${ytPlayer.offsetHeight / 3}`
-					);
-				if (popup && listMatch) {
-					//! If the video is not in the playlist or not within the first 200 entries, then it automatically selects the first video in the list.
-					popup.addEventListener('load', function () {
-						"use strict";
-						//~ check if the video ID in the link of the video title matches the original video ID in the URL and if not remove the playlist from the URL (reloads the page).
-						const videoLink = this.document.querySelector('div#player div.ytp-title-text>a[href]');
-						if (videoLink && videoLink.href.match(ImprovedTube.regex.video_id)[1] !== videoID) this.location.search = this.location.search.replace(/(\?)list=[^&]+&|&list=[^&]+/, '$1');
-					}, {passive: true, once: true});
-				}
-				//~ change focused tab to URL-less popup
+
+				const videoID = location.search.match(ImprovedTube.regex.video_id)[1];
+				const start = Math.floor(ytPlayer.getCurrentTime());
+
+				const url = new URL("https://www.youtube.com/watch");
+
+				url.searchParams.set("v", videoID);
+				url.searchParams.set("t", String(start));
+				url.searchParams.set("it_popup", "1");
+
+				url.searchParams.set(
+					"autoplay",
+					ImprovedTube.storage.player_autoplay_disable ? "0" : "1"
+				);
+
 				ImprovedTube.messages.send({
-					action: 'fixPopup',
-					width: ytPlayer.offsetWidth * 0.75,
-					height: ytPlayer.offsetHeight * 0.75,
-					title: document.title
+					action: "openPlayerPopup",
+					url: url.toString(),
+					width: Math.round(ytPlayer.getBoundingClientRect().width),
+					height: Math.round(ytPlayer.getBoundingClientRect().height)
 				});
 			},
 			title: 'Popup'
@@ -4353,7 +4352,7 @@ SMART SPEED ENGINE
 
         _setRate(rate) {
 			const v = this._getVideo();
-			if (!v || Math.abs(v.playbackRate - rate) < 0.01) return; 
+			if (!v || Math.abs(v.playbackRate - rate) < 0.01) return;
 			this.expectedRate = v.playbackRate = toNum(rate, 1, 0.0625, 16); // Clamped to Chromium's limit. Smart Speed could also do nothing, if a user momentarily sets a certain speed and one too hard to listen to.
 								},
 

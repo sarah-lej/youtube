@@ -16,6 +16,32 @@
 	# Listener
 	# Load
 --------------------------------------------------------------*/
+// Mark ImprovedTube popup windows early
+if (
+	new URLSearchParams(location.search).get('it_popup') === '1' ||
+	window.name === 'improvedtube-popup'
+) {
+	window.name = 'improvedtube-popup';
+
+	const markPopup = () => {
+		if (document.documentElement) {
+			document.documentElement.classList.add('it-popup-mode');
+			return true;
+		}
+
+		return false;
+	};
+
+	if (!markPopup()) {
+		const observer = new MutationObserver(() => {
+			if (markPopup()) {
+				observer.disconnect();
+			}
+		});
+
+		observer.observe(document, { childList: true });
+	}
+}
 
 /*--------------------------------------------------------------
 # GLOBAL VARIABLE

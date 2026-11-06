@@ -344,6 +344,30 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 			return true;
 
+		case 'openPlayerPopup': {
+			const url = new URL(message.url);
+
+			if (
+				url.origin !== 'https://www.youtube.com' ||
+				url.pathname !== '/watch' ||
+				!/^[a-zA-Z0-9_-]{11}$/.test(url.searchParams.get('v') || '')
+			) {
+				break;
+			}
+			const width = Math.max(400, Math.round(Number(message.width) || 700));
+			const height = Math.max(250, Math.round(Number(message.height) || 430) + 30);
+
+			chrome.windows.create({
+				url: url.toString(),
+				type: 'popup',
+				width: width,
+				height: height,
+				focused: true
+			});
+
+			break;
+		}
+
 		case 'fixPopup':
 			//~ get the current focused tab and convert it to a URL-less popup (with same state and size)
 			chrome.windows.getLastFocused(w => {
